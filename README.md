@@ -7,35 +7,48 @@ jsdelivr CDN 경유로 호출.
 ## 폴더 구조
 
 블로그(`ten-dev-notes` / `ten-language-notes`) 두 곳에 맞춰 **`dev` / `language`
-두 폴더만** 둔다. 안에서는 평탄(flat)하게 파일을 두고, 파일명으로 어느 글/주제의
-이미지인지 구분한다.
+두 폴더만** 둔다. 발행용 WebP는 폴더 바로 아래에, **원본 PNG는 `_src/`** 하위에
+보관한다.
 
 ```
 blog-images/
-├── dev/                       # ten-dev-notes 용 이미지 (배너, 다이어그램 등)
-│   ├── database_banner_1600x840.png
-│   └── security_banner_1600x840.png
-└── language/                  # ten-language-notes 용 이미지
-    └── english_banner_1600x840.png
+├── dev/                          # ten-dev-notes 용
+│   ├── database_banner.webp      ← 블로그가 호출 (~100 KB)
+│   ├── security_banner.webp
+│   └── _src/                     ← 원본 (재변환용)
+│       ├── database_banner.png   ← 약 1.3 MB
+│       └── security_banner.png
+└── language/                     # ten-language-notes 용
+    ├── english_banner.webp
+    └── _src/
+        └── english_banner.png
 ```
+
+### `_src/` 폴더의 역할
+
+- 발행에는 안 쓰임 (jsdelivr URL로 직접 호출하지 않음)
+- 미래에 더 좋은 포맷(AVIF 등) 나오거나 품질 재조정이 필요할 때 다시 변환할
+  원본 보관용
+- **lossy WebP를 또 lossy로 재변환하면 화질이 누적으로 망가지므로** 항상 PNG
+  원본에서 변환해야 안전
 
 ## 파일명 규칙
 
+기본 패턴:
 ```
-<날짜접두사>-<글-슬러그>-<용도>.<ext>
+<주제 또는 글-슬러그>_<용도>.<ext>
 ```
 
 예:
 ```
-2026-05-dbms-parsing-banner.webp
-2026-05-dbms-parsing-flow.png
-2026-05-toeic-unit-01-cover.webp
+database_banner.webp                # 카테고리 배너 (여러 글 공유)
+2026-05-dbms-parsing_banner.webp    # 특정 글 전용 배너 (날짜 prefix)
+2026-05-dbms-parsing_flow.webp      # 특정 글 본문 다이어그램
 ```
 
-- 날짜 접두사(`YYYY-MM`)는 정렬 및 일괄 검색용
-- 슬러그는 글 제목과 같이 가져가서 어느 글의 이미지인지 명확
-- 용도(`banner`, `cover`, `flow`, `diagram` 등)로 한 글에 여러 장 있을 때 구분
-- 확장자는 가능하면 `webp`, 다이어그램은 `svg` 또는 `png`
+- 카테고리 단위 재사용 이미지는 짧은 이름(`database_banner.webp`)
+- 글 전용은 **날짜 prefix + 글 슬러그 + 용도** (`2026-05-<슬러그>_<용도>`)
+- 확장자: 발행본은 `.webp`, 원본은 `.png` (또는 `.svg`)
 
 ## CDN 호출 URL
 
@@ -46,10 +59,11 @@ GitHub Raw 직접 호출은 캐싱이 약하므로 **jsdelivr** 사용 권장.
 https://cdn.jsdelivr.net/gh/<github_user>/blog-images@main/<path>
 ```
 
-예 (GitHub 사용자명 `ten-choi` 기준):
+현재 발행본 (ten-choi 기준):
 ```
-https://cdn.jsdelivr.net/gh/ten-choi/blog-images@main/dev/database_banner_1600x840.png
-https://cdn.jsdelivr.net/gh/ten-choi/blog-images@main/language/english_banner_1600x840.png
+https://cdn.jsdelivr.net/gh/ten-choi/blog-images@main/dev/database_banner.webp
+https://cdn.jsdelivr.net/gh/ten-choi/blog-images@main/dev/security_banner.webp
+https://cdn.jsdelivr.net/gh/ten-choi/blog-images@main/language/english_banner.webp
 ```
 
 - `@main` 대신 커밋 해시를 박으면 immutable URL (무한 캐시)
@@ -70,19 +84,55 @@ https://raw.githubusercontent.com/<github_user>/blog-images/main/<path>
 
 ## 이미지 최적화
 
-- PNG → WebP 변환: `cwebp -q 85 input.png -o output.webp`
-- PNG 압축: `pngquant --quality 65-85 input.png`
-- 또는 [Squoosh](https://squoosh.app) 사용
+### 방법 1: Python Pillow (이미 설치돼 있음)
+```python
+from PIL import Image
+img = Image.open("input.png")
+img.save("output.webp", "WEBP", quality=85, method=6)
+# method=6은 가장 느린/최고 압축
+```
 
-목표: 200 KB 이하 / 1장.
+### 방법 2: cwebp 명령어
+```bash
+# 사진/배너 (그라데이션 많음) — q=85
+cwebp -q 85 input.png -o output.webp
+
+# 텍스트/UI 스크린샷 — q=95
+cwebp -q 95 input.png -o output.webp
+
+# 픽셀 완전 보존 (다이어그램/로고)
+cwebp -lossless input.png -o output.webp
+```
+
+### 방법 3: 웹에서 [Squoosh](https://squoosh.app)
+드래그앤드롭 + 좌우 슬라이더로 시각적 비교 가능. 1~2장 변환할 땐 가장 빠름.
+
+**목표: 200 KB 이하 / 1장.**
 
 ## 워크플로
 
-1. 이미지 만든다 (Excalidraw, Figma, Canva, 스크린샷 등)
-2. 최적화 후 webp/png로 저장
-3. 이 repo의 적절한 폴더에 commit + push
-4. 블로그 마크다운에서 jsdelivr URL로 참조
+1. 원본 이미지 만든다 (Figma/Canva/스크린샷 등)
+2. 1600×840 PNG로 export
+3. `<topic>/_src/<name>.png`에 commit
+4. WebP 변환 → `<topic>/<name>.webp`에 commit
+5. 블로그 마크다운에서 jsdelivr URL로 참조
 
 ```markdown
-![SQL parsing flow](https://cdn.jsdelivr.net/gh/ten-choi/blog-images@main/dev/2026-05-dbms-parsing-flow.webp)
+![](https://cdn.jsdelivr.net/gh/ten-choi/blog-images@main/dev/database_banner.webp)
+```
+
+## 일괄 변환 스크립트
+
+`_src/` 안의 모든 PNG를 부모 폴더에 WebP로 변환:
+
+```python
+# tools/convert_all.py
+from pathlib import Path
+from PIL import Image
+
+ROOT = Path(__file__).resolve().parent.parent
+for src in ROOT.rglob("_src/*.png"):
+    dst = src.parent.parent / (src.stem + ".webp")
+    Image.open(src).save(dst, "WEBP", quality=85, method=6)
+    print(f"{src.relative_to(ROOT)} → {dst.relative_to(ROOT)}")
 ```
