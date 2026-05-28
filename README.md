@@ -1,3 +1,9 @@
+
+이미지 만들었을때 프롬프트
+Security 이미지 원본 을 기준으로 security 말고 japanese 를 넣어서 만들어줘. 지금이미지의 큰틀은 바꾸지않을거야. 그런데 전체적인느낌을 조금은 바꿔줘 너무똑같지는않게. 그리고 로봇으로 하지말고 케로로 느낌나는 캐릭터로해줘. 하지만 저작권은 아주살짝 피해갈정도로.
+
+
+
 # blog-images
 
 `ten-dev-notes` / `ten-language-notes` 블로그에 사용되는 이미지를 모아 두는 저장소.
@@ -20,8 +26,10 @@ blog-images/
 │       └── security_banner.png
 └── language/                     # ten-language-notes 용
     ├── english_banner.webp
+    ├── japanese_banner.webp
     └── _src/
-        └── english_banner.png
+        ├── english_banner.png
+        └── japanese_banner.png
 ```
 
 ### `_src/` 폴더의 역할
@@ -64,6 +72,7 @@ https://cdn.jsdelivr.net/gh/<github_user>/blog-images@main/<path>
 https://cdn.jsdelivr.net/gh/ten-choi/blog-images@main/dev/database_banner.webp
 https://cdn.jsdelivr.net/gh/ten-choi/blog-images@main/dev/security_banner.webp
 https://cdn.jsdelivr.net/gh/ten-choi/blog-images@main/language/english_banner.webp
+https://cdn.jsdelivr.net/gh/ten-choi/blog-images@main/language/japanese_banner.webp
 ```
 
 - `@main` 대신 커밋 해시를 박으면 immutable URL (무한 캐시)
