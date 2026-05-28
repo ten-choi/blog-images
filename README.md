@@ -6,21 +6,17 @@ jsdelivr CDN 경유로 호출.
 
 ## 폴더 구조
 
-블로그 repo(`personal/blog/blogs/`)와 동일한 트리를 따른다 — 이미지가 어느 글의
-것인지 즉시 찾을 수 있게 하기 위함.
+블로그(`ten-dev-notes` / `ten-language-notes`) 두 곳에 맞춰 **`dev` / `language`
+두 폴더만** 둔다. 안에서는 평탄(flat)하게 파일을 두고, 파일명으로 어느 글/주제의
+이미지인지 구분한다.
 
 ```
 blog-images/
-├── _banners/                  # 포스트 대표 이미지(featured / og:image)
-├── dev/
-│   ├── algorithms/
-│   ├── database/
-│   ├── infra/
-│   ├── network/
-│   └── workflow/
-└── language/
-    ├── english/
-    └── japanese/
+├── dev/                       # ten-dev-notes 용 이미지 (배너, 다이어그램 등)
+│   ├── database_banner_1600x840.png
+│   └── security_banner_1600x840.png
+└── language/                  # ten-language-notes 용 이미지
+    └── english_banner_1600x840.png
 ```
 
 ## 파일명 규칙
@@ -52,7 +48,8 @@ https://cdn.jsdelivr.net/gh/<github_user>/blog-images@main/<path>
 
 예 (GitHub 사용자명 `ten-choi` 기준):
 ```
-https://cdn.jsdelivr.net/gh/ten-choi/blog-images@main/_banners/2026-05-dbms-parsing-banner.webp
+https://cdn.jsdelivr.net/gh/ten-choi/blog-images@main/dev/database_banner_1600x840.png
+https://cdn.jsdelivr.net/gh/ten-choi/blog-images@main/language/english_banner_1600x840.png
 ```
 
 - `@main` 대신 커밋 해시를 박으면 immutable URL (무한 캐시)
@@ -87,5 +84,5 @@ https://raw.githubusercontent.com/<github_user>/blog-images/main/<path>
 4. 블로그 마크다운에서 jsdelivr URL로 참조
 
 ```markdown
-![SQL parsing flow](https://cdn.jsdelivr.net/gh/ten-choi/blog-images@main/dev/database/2026-05-dbms-parsing-flow.webp)
+![SQL parsing flow](https://cdn.jsdelivr.net/gh/ten-choi/blog-images@main/dev/2026-05-dbms-parsing-flow.webp)
 ```
