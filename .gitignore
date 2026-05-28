@@ -1,0 +1,24 @@
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor junk
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 작업용 원본 (큰 PSD/Figma export 등은 따로 보관)
+*.psd
+*.ai
+*.sketch
+*.fig
+
+# 임시
+*.tmp
+*.bak
+
+# 노드(혹시 압축 스크립트 둘 경우)
+node_modules/
